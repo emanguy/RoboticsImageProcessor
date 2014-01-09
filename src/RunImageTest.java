@@ -2,13 +2,14 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 public class RunImageTest {
 
-	//private static final int EDGE_DETECT_SENSITIVITY = 430;
-	private static final int LUMINANCE_THRESHOLD = 253;
+	private static final int EDGE_DETECT_SENSITIVITY = 300;
+	private static final int LUMINANCE_THRESHOLD = 252;
 	
     public static void main(String[] args) 
     {
@@ -16,6 +17,7 @@ public class RunImageTest {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         
         //Now call the image generation algorithm
+        //TODO: Change this file location for the test image you're using on your system
         generateLineDetectImage("E:/Robotics/ImageProcessing/TestImage.png");
     }
     
@@ -61,6 +63,11 @@ public class RunImageTest {
     	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Lum"), luminanceChart);
     	
     	//PERFORM EDGE DETECTION ON NEW IMAGE
+    	
+    	Mat edgeMap = new Mat();
+    	Imgproc.Canny(luminanceChart, edgeMap, EDGE_DETECT_SENSITIVITY, EDGE_DETECT_SENSITIVITY);
+    	Imgproc.blur(edgeMap, edgeMap, new Size(5,5));
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Edge"), edgeMap);
     	
     	//PERFORM LINE DETECTION ON NEW IMAGE
     	
