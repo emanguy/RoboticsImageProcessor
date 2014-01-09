@@ -20,7 +20,7 @@ public class RunImageTest {
         
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
-        generateLineDetectImage("E:/Robotics/ImageProcessing/TestImage.png");
+        generateLineDetectImage(args[0]);
     }
     
     /**
