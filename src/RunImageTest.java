@@ -10,7 +10,7 @@ import org.opencv.imgproc.Imgproc;
 public class RunImageTest {
 
 	private static final int EDGE_DETECT_SENSITIVITY = 250;
-	private static final int LINE_DETECT_SENSITIVITY = 100;
+	private static final int LINE_DETECT_SENSITIVITY = 150;
 	private static final int LUMINANCE_THRESHOLD = 252;
 	
     public static void main(String[] args) 
@@ -75,13 +75,13 @@ public class RunImageTest {
     	//PERFORM LINE DETECTION ON NEW IMAGE
     	
     	Mat lines = new Mat();
-    	Imgproc.HoughLinesP(edgeMap, lines, 1, Math.PI/180, LINE_DETECT_SENSITIVITY);
+    	Imgproc.HoughLinesP(edgeMap, lines, 1, Math.PI/180, LINE_DETECT_SENSITIVITY, 30, 5);
     	
     	//Iterate through each (x1, y1) (x2, y2) pair and draw the findings onto a new image
     	int currentHue = 255;
     	int hueChange = 127 / lines.cols();
     	
-    	for (int line = 0; line < 5; line++)
+    	for (int line = 0; line < lines.cols(); line++)
     	{
     		//Draw the line
     		Point lineStart = new Point(lines.get(0, line)[0], lines.get(0, line)[1]);
@@ -107,8 +107,7 @@ public class RunImageTest {
     public static String generateFileCopyWithExtension(String location, String extension)
     {
     	//Taking off the last four characters removes the file extension
-    	return location.substring(0, location.length() - 4) + extension +
-    			location.substring(location.length() - 4);
+    	return location.substring(0, location.length() - 4) + extension + location.substring(location.length() - 4);
     }
 
 }
