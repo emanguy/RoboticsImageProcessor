@@ -9,8 +9,8 @@ import org.opencv.imgproc.Imgproc;
 
 public class RunImageTest {
 
-	private static final int EDGE_DETECT_SENSITIVITY = 300;
-	private static final int LINE_DETECT_SENSITIVITY = 50;
+	private static final int EDGE_DETECT_SENSITIVITY = 250;
+	private static final int LINE_DETECT_SENSITIVITY = 100;
 	private static final int LUMINANCE_THRESHOLD = 252;
 	
     public static void main(String[] args) 
@@ -20,7 +20,7 @@ public class RunImageTest {
         
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
-        generateLineDetectImage(args[0]);
+        generateLineDetectImage("E:/Robotics/ImageProcessing/TestImage.png");
     }
     
     /**
@@ -69,7 +69,7 @@ public class RunImageTest {
     	//Create a new matrix for the edge detection
     	Mat edgeMap = new Mat();
     	Imgproc.Canny(luminanceChart, edgeMap, EDGE_DETECT_SENSITIVITY, EDGE_DETECT_SENSITIVITY);
-    	Imgproc.blur(edgeMap, edgeMap, new Size(5,5));
+    	Imgproc.blur(edgeMap, edgeMap, new Size(3,3));
     	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Edge"), edgeMap);
     	
     	//PERFORM LINE DETECTION ON NEW IMAGE
@@ -81,20 +81,20 @@ public class RunImageTest {
     	int currentHue = 255;
     	int hueChange = 127 / lines.cols();
     	
-    	for (int line = 0; line < lines.cols(); line++)
+    	for (int line = 0; line < 5; line++)
     	{
     		//Draw the line
     		Point lineStart = new Point(lines.get(0, line)[0], lines.get(0, line)[1]);
     		Point lineEnd = new Point(lines.get(0, line)[2], lines.get(0, line)[3]);
-    		Core.line(edgeMap, lineStart, lineEnd, new Scalar(currentHue));
+    		Core.line(edgeMap, lineStart, lineEnd, new Scalar(currentHue), 5);
     		
     		currentHue -= hueChange; //Change the hue slightly for every line
     	}
     	
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Lines"), edgeMap);
+    	//TODO: DRAW LINES ON NEW IMAGE
     	
-    	//DRAW LINES ON NEW IMAGE
-    	
-    	//WRITE NEW IMAGE TO DISK
+    	//TODO: WRITE NEW IMAGE TO DISK
     }
     
     /**
