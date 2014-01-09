@@ -8,7 +8,7 @@ import org.opencv.imgproc.Imgproc;
 public class RunImageTest {
 
 	//private static final int EDGE_DETECT_SENSITIVITY = 430;
-	private static final int LUMINANCE_THRESHOLD = 198;
+	private static final int LUMINANCE_THRESHOLD = 253;
 	
     public static void main(String[] args) 
     {
@@ -38,7 +38,7 @@ public class RunImageTest {
     	Imgproc.cvtColor(imgMatrix, imgMatrix, Imgproc.COLOR_RGB2HLS);
     	
     	//Make an black 1-channel matrix for the Luminance channel
-    	Mat luminanceChart = new Mat(imgMatrix.rows(), imgMatrix.cols(), CvType.CV_8SC1, new Scalar(256));
+    	Mat luminanceChart = new Mat(imgMatrix.rows(), imgMatrix.cols(), CvType.CV_8UC1, new Scalar(0));
     	
     	//Copy luminance values over a certain threshold as a white pixel in the black matrix
     	
@@ -56,6 +56,10 @@ public class RunImageTest {
     			}
     		}
     	}
+    	
+    	//TODO: Remove this later.
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Lum"), luminanceChart);
+    	
     	//PERFORM EDGE DETECTION ON NEW IMAGE
     	
     	//PERFORM LINE DETECTION ON NEW IMAGE
