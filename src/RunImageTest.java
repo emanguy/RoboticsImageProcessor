@@ -5,6 +5,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
@@ -19,7 +20,7 @@ public class RunImageTest {
         
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
-        generateLineDetectImage("TestImage.png");
+        generateLineDetectImage(args[0]);
     }
     
     /**
@@ -69,15 +70,43 @@ public class RunImageTest {
     	ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
     	Imgproc.findContours(luminanceChart, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
     	
-    	for (MatOfPoint pointList : contours)
+    	//Find two contours with largest area
+    	
+    	ArrayList<MatOfPoint> largestContours = new ArrayList<MatOfPoint>();
+    	for (int area = 0; area < 2; area++)
     	{
-    		System.out.println(pointList.dump());
+    		double largestArea = 0;
+    		int largestIndex = 0;
+    		int currIndex = 0;
+    		
+    		for (MatOfPoint contour : contours)
+    		{
+    			double currArea = Imgproc.contourArea(contour);
+    			
+    			//If the current contour area is greater than the largest area
+    			if (currArea > largestArea)
+    			{
+    				//Set the current index as the largest one & update largest area
+    				largestArea = currArea;
+    				largestIndex = currIndex;
+    			}
+    			
+    			currIndex++;
+    		}
+    		
+    		//Remove the largest contour and add it to the largest contour list
+    		largestContours.add(contours.remove(largestIndex));
     	}
     	
-    	//Draw contours onto B/W image
-    	Imgproc.drawContours(luminanceChart, contours, -1, new Scalar(127), 3);
+    	//Draw contours onto B/W image, we'll make a new black image for this
+    	Mat largestContourImage = new Mat(luminanceChart.rows(), luminanceChart.cols(), CvType.CV_8UC1, new Scalar(0));
+    	//The third parameter is the contour index to draw (negative means all), the last is a thickness value (Core.FILLED fills the contour area)
+    	Imgproc.drawContours(largestContourImage, largestContours, -1, new Scalar(255), Core.FILLED);
+    	
+    	//We'll blur the result to make it pretty
+    	Imgproc.blur(largestContourImage, largestContourImage, new Size(3,3));
     	//Write result to disk
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Contour"), luminanceChart);
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Contour"), largestContourImage);
     }
     
     /**
