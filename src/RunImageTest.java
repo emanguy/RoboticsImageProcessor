@@ -4,6 +4,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -12,6 +13,9 @@ import org.opencv.imgproc.Imgproc;
 public class RunImageTest {
 
 	private static final int LUMINANCE_THRESHOLD = 252;
+	private static final double CORNER_QUALITY = .25;
+	//This helps to ensure corners aren't too close together
+	private static final double MIN_DISTANCE_BETWEEN_CORNERS = 10;
 	
     public static void main(String[] args) 
     {
@@ -38,9 +42,10 @@ public class RunImageTest {
     	//GENERATE GRAYSCALE IMAGE
     	
     	//Create a pixel matrix for the given image
-    	Mat imgMatrix = Highgui.imread(imageLocation);
+    	Mat originImg = Highgui.imread(imageLocation);
+    	Mat imgMatrix = new Mat();
     	//The final parameter here denotes a conversion from an RGB image to HLS
-    	Imgproc.cvtColor(imgMatrix, imgMatrix, Imgproc.COLOR_RGB2HLS);
+    	Imgproc.cvtColor(originImg, imgMatrix, Imgproc.COLOR_RGB2HLS);
     	
     	//Make an black 1-channel matrix for the Luminance channel
     	Mat luminanceChart = new Mat(imgMatrix.rows(), imgMatrix.cols(), CvType.CV_8UC1, new Scalar(0));
@@ -103,18 +108,36 @@ public class RunImageTest {
     	//The third parameter is the contour index to draw (negative means all), the last is a thickness value (Core.FILLED fills the contour area)
     	Imgproc.drawContours(largestContourImage, largestContours, -1, new Scalar(255), Core.FILLED);
     	
-    	//We'll blur the result to make it pretty
+    	//We'll blur the result to make it pretty (and make sure edges are relatively smooth)
     	Imgproc.blur(largestContourImage, largestContourImage, new Size(3,3));
+    	
+    	//DETECT CORNERS
+    	
+    	//Make a new image for the corner detection
+    	MatOfPoint cornerDetection = new MatOfPoint();
+    	//Do corner detection
+    	//8 denotes the function should track the 8 strongest corners
+    	Imgproc.goodFeaturesToTrack(largestContourImage, cornerDetection, 8, CORNER_QUALITY, MIN_DISTANCE_BETWEEN_CORNERS);
+    	Point[] cornersFound = cornerDetection.toArray();
+    	
+    	//For a test, I'll draw circles around the corners I found in the image
+    	for (Point p : cornersFound)
+    	{
+    		Core.circle(largestContourImage, p, 7, new Scalar(127), 3);
+    		Core.circle(originImg, p, 7, new Scalar(0, 255, 0), 3);
+    	}
+    	
     	//Write result to disk
     	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Contour"), largestContourImage);
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Corners"), originImg);
     }
     
     /**
      * Generates a file output string where the resulting filename is "filename(extension).whatever"
      * 
      * @param location The file location of the image
-     * @param extension 
-     * @return
+     * @param extension The extension to the file name you want to add
+     * @return A new file location string with the new file name
      */
     public static String generateFileCopyWithExtension(String location, String extension)
     {
