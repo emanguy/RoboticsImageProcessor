@@ -1,16 +1,15 @@
+import java.util.ArrayList;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 public class RunImageTest {
 
-	private static final int EDGE_DETECT_SENSITIVITY = 250;
-	private static final int LINE_DETECT_SENSITIVITY = 150;
 	private static final int LUMINANCE_THRESHOLD = 252;
 	
     public static void main(String[] args) 
@@ -20,7 +19,7 @@ public class RunImageTest {
         
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
-        generateLineDetectImage("E:/Robotics/ImageProcessing/TestImage.png");
+        generateLineDetectImage("TestImage.png");
     }
     
     /**
@@ -39,6 +38,7 @@ public class RunImageTest {
     	
     	//Create a pixel matrix for the given image
     	Mat imgMatrix = Highgui.imread(imageLocation);
+    	//The final parameter here denotes a conversion from an RGB image to HLS
     	Imgproc.cvtColor(imgMatrix, imgMatrix, Imgproc.COLOR_RGB2HLS);
     	
     	//Make an black 1-channel matrix for the Luminance channel
@@ -61,40 +61,23 @@ public class RunImageTest {
     		}
     	}
     	
-    	//TODO: Remove this later.
     	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Lum"), luminanceChart);
     	
-    	//PERFORM EDGE DETECTION ON NEW IMAGE
+    	//REMOVE NOISE
     	
-    	//Create a new matrix for the edge detection
-    	Mat edgeMap = new Mat();
-    	Imgproc.Canny(luminanceChart, edgeMap, EDGE_DETECT_SENSITIVITY, EDGE_DETECT_SENSITIVITY);
-    	Imgproc.blur(edgeMap, edgeMap, new Size(3,3));
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Edge"), edgeMap);
+    	//To remove noise, we'll find the contours of shapes in the image.
+    	ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+    	Imgproc.findContours(luminanceChart, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
     	
-    	//PERFORM LINE DETECTION ON NEW IMAGE
-    	
-    	Mat lines = new Mat();
-    	Imgproc.HoughLinesP(edgeMap, lines, 1, Math.PI/180, LINE_DETECT_SENSITIVITY, 30, 5);
-    	
-    	//Iterate through each (x1, y1) (x2, y2) pair and draw the findings onto a new image
-    	int currentHue = 255;
-    	int hueChange = 127 / lines.cols();
-    	
-    	for (int line = 0; line < lines.cols(); line++)
+    	for (MatOfPoint pointList : contours)
     	{
-    		//Draw the line
-    		Point lineStart = new Point(lines.get(0, line)[0], lines.get(0, line)[1]);
-    		Point lineEnd = new Point(lines.get(0, line)[2], lines.get(0, line)[3]);
-    		Core.line(edgeMap, lineStart, lineEnd, new Scalar(currentHue), 5);
-    		
-    		currentHue -= hueChange; //Change the hue slightly for every line
+    		System.out.println(pointList.dump());
     	}
     	
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Lines"), edgeMap);
-    	//TODO: DRAW LINES ON NEW IMAGE
-    	
-    	//TODO: WRITE NEW IMAGE TO DISK
+    	//Draw contours onto B/W image
+    	Imgproc.drawContours(luminanceChart, contours, -1, new Scalar(127), 3);
+    	//Write result to disk
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Contour"), luminanceChart);
     }
     
     /**
