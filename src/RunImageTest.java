@@ -107,7 +107,8 @@ public class RunImageTest {
     public static String generateFileCopyWithExtension(String location, String extension)
     {
     	//Taking off the last four characters removes the file extension
-    	return location.substring(0, location.length() - 4) + extension + location.substring(location.length() - 4);
+    	return location.substring(0, location.length() - 4) + extension +
+    			location.substring(location.length() - 4);
     }
 
 }
