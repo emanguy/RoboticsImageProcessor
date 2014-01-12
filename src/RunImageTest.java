@@ -24,7 +24,7 @@ public class RunImageTest {
         
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
-        if (args.length == 0)
+        if (args.length != 0)
         	generateLineDetectImage(args[0]);
         else
         	System.out.print("No arguments given! Provide a relative or absolute path to the image file.");
