@@ -47,30 +47,18 @@ public class RunImageTest {
     	//Create a pixel matrix for the given image
     	Mat originImg = Highgui.imread(imageLocation);
     	Mat imgMatrix = new Mat();
-    	//The final parameter here denotes a conversion from an RGB image to HLS
-    	Imgproc.cvtColor(originImg, imgMatrix, Imgproc.COLOR_RGB2HLS);
+    	//The final parameter here denotes a conversion from an RGB image to Luminance (grayscale)
+    	Imgproc.cvtColor(originImg, imgMatrix, Imgproc.COLOR_RGB2GRAY);
+    	//Output luminance filtered image
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Gray"), imgMatrix);
     	
     	//Make an black 1-channel matrix for the Luminance channel
     	Mat luminanceChart = new Mat(imgMatrix.rows(), imgMatrix.cols(), CvType.CV_8UC1, new Scalar(0));
     	
     	//Copy luminance values over a certain threshold as a white pixel in the black matrix
+    	Imgproc.threshold(imgMatrix, luminanceChart, LUMINANCE_THRESHOLD, 255, Imgproc.THRESH_BINARY);
+    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "LumThreshold"), luminanceChart);
     	
-    	//Make a white pixel for the high luminance locations
-    	byte[] whitePixel = { (byte)255 };
-    	
-    	for (int row = 0; row < imgMatrix.rows(); row++)
-    	{
-    		for (int col = 0; col < imgMatrix.cols(); col++)
-    		{
-    			//If the luminance value is over our certain threshold, set the pixel white
-    			if (imgMatrix.get(row,  col)[1] > LUMINANCE_THRESHOLD)
-    			{
-    				luminanceChart.put(row, col, whitePixel);
-    			}
-    		}
-    	}
-    	
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Lum"), luminanceChart);
     	
     	//REMOVE NOISE
     	
