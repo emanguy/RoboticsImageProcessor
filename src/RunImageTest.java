@@ -25,7 +25,15 @@ public class RunImageTest {
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
         if (args.length != 0)
-        	generateLineDetectImage(args[0]);
+        {
+        	Point[] points = generateLineDetectImage(args[0]);
+        	
+        	//Output the locations of the detected points within the image.
+        	for (Point p : points)
+        	{
+        		System.out.println("Point: <" + p.x + "," + p.y + ">");
+        	}
+        }
         else
         	System.out.print("No arguments given! Provide a relative or absolute path to the image file.");
     }
@@ -35,7 +43,7 @@ public class RunImageTest {
      * 
      * @param imageLocation Location of the source image for target detection
      */
-    public static void generateLineDetectImage(String imageLocation)
+    public static Point[] generateLineDetectImage(String imageLocation)
     {
     	/*
     	 * This should isolate the highest luminance HLS values and place
@@ -49,16 +57,12 @@ public class RunImageTest {
     	Mat imgMatrix = new Mat();
     	//The final parameter here denotes a conversion from an RGB image to Luminance (grayscale)
     	Imgproc.cvtColor(originImg, imgMatrix, Imgproc.COLOR_RGB2GRAY);
-    	//Output luminance filtered image
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Gray"), imgMatrix);
     	
     	//Make an black 1-channel matrix for the Luminance channel
     	Mat luminanceChart = new Mat(imgMatrix.rows(), imgMatrix.cols(), CvType.CV_8UC1, new Scalar(0));
     	
     	//Copy luminance values over a certain threshold as a white pixel in the black matrix
     	Imgproc.threshold(imgMatrix, luminanceChart, LUMINANCE_THRESHOLD, 255, Imgproc.THRESH_BINARY);
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "LumThreshold"), luminanceChart);
-    	
     	
     	//REMOVE NOISE
     	
@@ -118,9 +122,7 @@ public class RunImageTest {
     		Core.circle(originImg, p, 7, new Scalar(0, 255, 0), 3);
     	}
     	
-    	//Write result to disk
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Contour"), largestContourImage);
-    	Highgui.imwrite(generateFileCopyWithExtension(imageLocation, "Corners"), originImg);
+    	return cornersFound;
     }
     
     /**
