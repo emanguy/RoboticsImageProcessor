@@ -1,8 +1,7 @@
 package edu.ahs.raid.tormentum.cameratest.camera;
-//TODO: Determine package and add it here.
 
-import java.awt.image.BufferedImage;
-import org.opencv.core.*;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
 /**
  * This class is intended to allow a camera updater to post camera frame updates to a 
@@ -47,7 +46,13 @@ public class CameraUpdateEvent
 		return image;
 	}
 	
-	//TODO: Write a getPoints function
-	
-	//TODO: Write a static function to convert from Mat to BufferedImage
+	/**
+	 * Return the detected points within the camera frame.
+	 * 
+	 * @return An array of points describing where the corners of the rectangles of the image are.
+	 */
+	public Point[] getPoints()
+	{
+		return detectedPoints;
+	}
 }
