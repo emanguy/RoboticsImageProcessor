@@ -6,11 +6,15 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 
 import edu.ahs.raid.tormentum.cameratest.camera.CameraUpdateEvent;
 import edu.ahs.raid.tormentum.cameratest.camera.CameraUpdateListener;
@@ -87,13 +91,24 @@ public class DataDisplayWindow implements CameraUpdateListener
 	@Override
 	public void frameUpdated(CameraUpdateEvent e) 
 	{
+		Mat displayMatrix = e.getImage();
+		
+		//Draw fancy circles around the corners
+		if (e.getPoints() != null)
+		{
+			for (Point p : e.getPoints())
+			{
+				Core.circle(displayMatrix, p, 5, new Scalar(127), 3);
+			}
+		}
+		
 		//For now I'm just going to show the camera image
 		BufferedImage displayImage = null;
 		
 		//Attempt to show the new image frame
 		try 
 		{
-			displayImage = imgProc.matToImage(e.getImage());
+			displayImage = imgProc.matToImage(displayMatrix);
 			
 			image.setIcon(new ImageIcon(displayImage));
 		} 
@@ -104,8 +119,6 @@ public class DataDisplayWindow implements CameraUpdateListener
 		}
 		
 		frame.pack();
-		
-		//TODO: Make fancy corner detection circles
 		
 		//TODO: Do math and show results in window
 	}

@@ -25,13 +25,16 @@ public class ImageProcessor
 	//This helps to ensure corners aren't too close together
 	private final double MIN_DISTANCE_BETWEEN_CORNERS = 10;
 	
+	//I'll use this later for angle calculations
+	//private final double SIDE_TO_BOTTOM_RATIO = something;
+	
 	private static ImageProcessor p = new ImageProcessor();
 	
 	private ImageProcessor() {}
 	
 	/**
 	 * Get the single instance of the ImageProcessor
-	 * @return
+	 * @return The ImageProcessor instance
 	 */
 	public static ImageProcessor getInstance()
 	{
@@ -156,7 +159,8 @@ public class ImageProcessor
      */
     public double getViewAngle(Point[] p)
     {
-    	//TODO: Do maths here
+    	//TODO: Do fancy maths
+    	
     	return 0.0;
     }
 }
