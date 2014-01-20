@@ -1,4 +1,10 @@
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -24,10 +30,26 @@ public class RunImageTest {
         
         //Now call the image generation algorithm
         //TODO: Change this file location for the test image you're using on your system
-        if (args.length != 0)
-        	generateLineDetectImage(args[0]);
+		if (args.length != 0) {
+			HttpGet http = new HttpGet();
+			BufferedImage originalImage = null;
+			try {
+				originalImage = http.getImage();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	byte[] pixels = ((DataBufferByte) originalImage.getRaster().getDataBuffer()).getData();
+        	Mat imgConverted = new Mat(originalImage.getHeight(), originalImage.getWidth(), CvType.CV_8UC3);
+			imgConverted.put(0, 0, pixels);
+        	generateLineDetectImage(args[0], imgConverted);
+		}
         else
         	System.out.print("No arguments given! Provide a relative or absolute path to the image file.");
+        
+     	System.out.println("Send Http GET request");
+     	
+
     }
     
     /**
@@ -35,7 +57,7 @@ public class RunImageTest {
      * 
      * @param imageLocation Location of the source image for target detection
      */
-    public static void generateLineDetectImage(String imageLocation)
+    public static void generateLineDetectImage(String imageLocation, Mat originalImage)
     {
     	/*
     	 * This should isolate the highest luminance HLS values and place
@@ -45,7 +67,7 @@ public class RunImageTest {
     	//GENERATE GRAYSCALE IMAGE
     	
     	//Create a pixel matrix for the given image
-    	Mat originImg = Highgui.imread(imageLocation);
+    	Mat originImg = originalImage;
     	Mat imgMatrix = new Mat();
     	//The final parameter here denotes a conversion from an RGB image to Luminance (grayscale)
     	Imgproc.cvtColor(originImg, imgMatrix, Imgproc.COLOR_RGB2GRAY);
